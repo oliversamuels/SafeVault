@@ -1,18 +1,18 @@
 @model UserViewModel
 @{
-    ViewData["Title"] = "User Signup Page";
+    ViewData["Title"] = "User Edit Page";
 }
 
 <!-- webform.html -->
 <form asp-action="Create" method="post" class="form">
     <div class="form-group">
         <label asp-for="Username"></label>
-        <input asp-for="Username" class="form-control" />
+        <input asp-for="Username" class="form-control" value="@Model.Username" />
         <span asp-validation-for="Username" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
+        <input asp-for="Email" class="form-control" value="@Model.Email" />
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
     <div class="form-group">
@@ -27,7 +27,7 @@
     </div>
     <div class="form-group">
         <div class="form-check">
-            <input type="checkbox" asp-for="isAdmin" class="form-check-input" />
+            <input type="checkbox" asp-for="isAdmin" class="form-check-input" value="@Model.isAdmin" />
             <label class="form-check-label" asp-for="isAdmin"></label>
         </div>
         <span asp-validation-for="isAdmin" class="text-danger"></span>

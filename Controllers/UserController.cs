@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SafeVault;
 
@@ -19,7 +20,15 @@ public class UserController : Controller
         _context = context;
     }
 
+    [Authorize(Roles = "Admin")]
+    public IActionResult AdminOnlyAction()
+    {
+        // Logic for admin-only action
+        return Unauthorized();
+    }
+
     [HttpGet]
+    [Authorize(Policy = "AdminOnly")]
     public IActionResult Index()
     {
         return View(_context.Users.ToList());
@@ -61,7 +70,8 @@ public class UserController : Controller
             {
                 Username = user.Username,
                 Email = user.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.Password)
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.Password),
+                Role = user.isAdmin ? "Admin" : "User"
             };
 
             _context.Users.Add(newUser);
@@ -93,7 +103,8 @@ public class UserController : Controller
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.Email, user.Email)
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Role, user.Role ?? "User")
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -122,7 +133,17 @@ public class UserController : Controller
         {
             return NotFound();
         }
-        return View(user);
+
+        var userViewModel = new UserViewModel
+        {
+            Username = user.Username,
+            Email = user.Email,
+            isAdmin = user.Role == "Admin",
+            Password = "",
+            ConfrimPassword = ""
+        };
+
+        return View(userViewModel);
     }
 
     [HttpPost]
@@ -138,6 +159,7 @@ public class UserController : Controller
         return View(user);
     }
 
+    [Authorize(Policy = "AdminOnly")]
     public IActionResult Delete(int id)
     {
         var user = _context.Users.Find(id);

@@ -6,11 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddDbContext<DataContext>(option => 
+builder.Services.AddDbContext<DataContext>(options =>
 {
-    var options = new DbContextOptionsBuilder<DataContext>()
-        .UseSqlite("Data Source=SafeVault.db")
-        .Options;
+    options.UseSqlite("Data Source=SafeVault.db");
 });
 
 // Add authentication services
@@ -19,6 +17,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/User/Login";
     });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+});
 
 var app = builder.Build();
 

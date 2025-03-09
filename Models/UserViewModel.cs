@@ -19,5 +19,6 @@ public class UserViewModel
     [DataType(DataType.Password)]
     [Compare ("Password", ErrorMessage = "Password does not match")]
     required public string ConfrimPassword { get; set; }
+    public bool isAdmin { get; set; }
 
 }
